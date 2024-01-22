@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.mcn.MacChaeNeng.person.model.PersonService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -86,7 +88,7 @@ public class PersonController {
 	
 	//로그인 처리
 	@PostMapping("/login")
-	public String login(@RequestParam String id, @RequestParam String pwd, HttpServletRequest request, Model model) {
+	public String login(@RequestParam String id, @RequestParam String pwd, HttpServletRequest request, HttpServletResponse response, Model model) {
 		logger.info("로그인처리, 파라미터 id = {}, pwd = {}", id, pwd);
 		
 		String msg = "로그인 중 오류가 발생하였습니다. 다시 시도해주시기 바랍니다.", url = "/main";
@@ -95,7 +97,12 @@ public class PersonController {
 		
 		if(loginResult == PersonService.LOGIN_OK) {
 			msg = "안녕하세요. 막체능 전산입니다.";
-			url = "/MacChaeNeng/home";
+			url = "/home";
+			
+			//로그인 성공 시 세션 저장
+			HttpSession session = request.getSession();
+			session.setAttribute("id", id);
+			
 		}else if(loginResult == PersonService.PWD_DISAGREE || loginResult == PersonService.USERID_NONE) {
 			msg = "아이디 또는 비밀번호가 존재하지 않거나 일치하지 않습니다.";
 		}
@@ -104,6 +111,12 @@ public class PersonController {
 		model.addAttribute("url", url);
 		
 		return "common/message";
+	}
+	
+	//로그인 시 홈으로 이동
+	@GetMapping("/home")
+	public void home() {
+		logger.info("홈 화면 이동");
 	}
 	
 	

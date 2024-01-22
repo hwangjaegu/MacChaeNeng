@@ -1,8 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ include file="form/top.jsp"%>
+
 <title>MCN - 회원가입</title>
-</head>
+
 <style type="text/css">
 	body {
 	    text-align: center; /* 수평 가운데 정렬 */
@@ -155,6 +156,8 @@
 	}
 </script>
 
+</head>
+
 <body>
 	<%@ include file="form/header.jsp" %>
 	<div id="body" class="justify-content-center">
@@ -201,6 +204,5 @@
 		</form>
 	</div>
 	<%@ include file="form/bottom2.jsp" %>
-	
 </body>
 <%@ include file="form/bottom.jsp"%>
