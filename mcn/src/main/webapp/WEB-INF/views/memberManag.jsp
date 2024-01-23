@@ -1,9 +1,9 @@
-<%@page import="com.fasterxml.jackson.annotation.JsonInclude.Include"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<!DOCTYPE html>
 <%@ include file="form/top.jsp" %>
 
-<title>MCN - 홈</title>
+<title>MCN - 회원관리</title>
 
 <style type="text/css">
 	body {
@@ -55,26 +55,24 @@
 		margin-left: 0px;
 		padding-left: 10px;
 	}
-	
 </style>
 
 <script type="text/javascript">
 
 </script>
-
 </head>
+
 <body>
 	<div id="wrapper">
 		<%@ include file="form/header.jsp" %>
 		<%@ include file="form/aside.jsp" %>
 		<section>
 			<div class="row" id="headerTag">
-				/Home			
+				/회원관리			
 			</div>
 		</section>
 	
 		<%@ include file="form/bottom2.jsp" %>
 	</div>
-	
 </body>
-<%@ include file="form/bottom.jsp"%>
+<%@ include file="form/bottom.jsp" %>

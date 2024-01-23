@@ -119,5 +119,10 @@ public class PersonController {
 		logger.info("홈 화면 이동");
 	}
 	
+	@GetMapping("/memberManag")
+	public void memberManag() {
+		logger.info("회원 관리 화면 이동");
+	}
+	
 	
 }
