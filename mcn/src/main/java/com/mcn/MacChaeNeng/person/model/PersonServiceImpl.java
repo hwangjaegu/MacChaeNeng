@@ -1,5 +1,7 @@
 package com.mcn.MacChaeNeng.person.model;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -84,5 +86,22 @@ public class PersonServiceImpl implements PersonService{
 		
 		return result;
 	}
+	
+	//회원정보 전체 조회
+	@Override
+	public List<PersonVO> selectPersonAll(String name) {
+		
+		return personDao.selectPersonAll(name);
+	}
+
+	//신규회원등록
+	@Override
+	public int insertMem(PersonVO vo) {
+		
+		return personDao.insertMem(vo);
+	}
+	
+	
+	
 	
 }

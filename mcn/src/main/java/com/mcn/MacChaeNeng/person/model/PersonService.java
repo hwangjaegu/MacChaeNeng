@@ -1,5 +1,7 @@
 package com.mcn.MacChaeNeng.person.model;
 
+import java.util.List;
+
 public interface PersonService {
 	//로그인 관련 상수
 	int LOGIN_OK=1; //로그인 성공
@@ -13,4 +15,6 @@ public interface PersonService {
 	int idDubCheck(String id);
 	int insertAdminId(String id, String pwd);
 	int login(String id, String pwd);
+	List<PersonVO> selectPersonAll(String name);
+	int insertMem(PersonVO vo);
 }

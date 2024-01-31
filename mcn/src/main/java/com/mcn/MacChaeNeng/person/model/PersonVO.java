@@ -15,9 +15,11 @@ public class PersonVO {
 	private String gender;
 	private String address;
 	private String type;
-	private String experience;
+	private int weight;
 	private String hp;
 	private String email;
 	private String comments;
 	private String authority;
+	private Date joinDate;
 }
+

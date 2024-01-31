@@ -1,6 +1,7 @@
 package com.mcn.MacChaeNeng.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.mcn.MacChaeNeng.person.model.PersonService;
+import com.mcn.MacChaeNeng.person.model.PersonVO;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -119,10 +121,40 @@ public class PersonController {
 		logger.info("홈 화면 이동");
 	}
 	
+	//회원관리 화면 이동
 	@GetMapping("/memberManag")
 	public void memberManag() {
 		logger.info("회원 관리 화면 이동");
 	}
 	
+	//회원 리스트 조회
+	@ResponseBody
+	@RequestMapping("/memberManag/AjaxGetMemList")
+	public List<PersonVO> getPersonList(@RequestParam String searchName) {
+		logger.info("회원 리스트 조회, 파라미터 searchName = {}", searchName);
+		
+		List<PersonVO> list = personService.selectPersonAll(searchName);
+		
+		return list;
+	}
+	
+	@RequestMapping("/memberManag/registMem")
+	public String registMem(@RequestParam PersonVO vo, Model model) {
+		logger.info("회원등록, 파라미터 vo = {}", vo);
+		
+		int cnt = personService.insertMem(vo);
+		
+		String msg = "회원등록 중 문제가 발생했습니다. 다시 시도해주시기 바랍니다.", 
+				url = "/memberManag";
+		
+		if(cnt>0) {
+			msg = "회원등록이 완료되었습니다.";
+		}
+		
+		model.addAttribute("msg", msg);
+		model.addAttribute("url", url);
+		
+		return "common/message";
+	}
 	
 }
