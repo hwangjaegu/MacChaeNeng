@@ -16,5 +16,6 @@ public interface PersonService {
 	int insertAdminId(String id, String pwd);
 	int login(String id, String pwd);
 	List<PersonVO> selectPersonAll(String name);
-	int insertMem(PersonVO vo);
+	int insertMem(PersonVO vo, String birhYear, String birthMonth, String birthDate,
+				String joinYear, String joinMonth, String joinDay);
 }

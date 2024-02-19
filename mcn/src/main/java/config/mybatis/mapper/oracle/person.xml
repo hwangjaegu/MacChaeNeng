@@ -28,7 +28,7 @@
 			<if test="name != null and name !=''">
 				AND NAME LIKE '%' || #{searchName} || '%' 
 			</if>
-		ORDER BY NAME 
+		ORDER BY USERNUM 
 	</select>
 	
 	<!-- 회원정보 등록 -->

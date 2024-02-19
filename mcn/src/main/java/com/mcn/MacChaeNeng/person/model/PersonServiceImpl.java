@@ -1,11 +1,13 @@
 package com.mcn.MacChaeNeng.person.model;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.mcn.MacChaeNeng.common.DateCheck;
 import com.mcn.MacChaeNeng.common.SAH256;
 import com.mcn.MacChaeNeng.salt.model.SaltDAO;
 import com.mcn.MacChaeNeng.salt.model.SaltVo;
@@ -91,12 +93,41 @@ public class PersonServiceImpl implements PersonService{
 	@Override
 	public List<PersonVO> selectPersonAll(String name) {
 		
-		return personDao.selectPersonAll(name);
+		List<PersonVO> list = personDao.selectPersonAll(name);
+		
+		for(int i=0; i<list.size(); i++) {
+			if(list.get(i).getGender().equals("M")) {
+				list.get(i).setGender("남");
+			}else {
+				list.get(i).setGender("여");
+			}
+			
+			if(list.get(i).getComments() == null) {
+				list.get(i).setComments("");
+			}
+		}
+		
+		return list;
 	}
 
 	//신규회원등록
 	@Override
-	public int insertMem(PersonVO vo) {
+	public int insertMem(PersonVO vo, String birhYear, String birthMonth, String birthDate,
+			String joinYear, String joinMonth, String joinDay) {
+		DateCheck dc = new DateCheck();
+		
+		Date transBirth = null;
+		Date transJoin = null;
+		
+		if(dc.isFull(birhYear, birthMonth, birthDate)) {
+			transBirth = dc.dateCheck(birhYear, birthMonth, birthDate);
+			vo.setBirth(transBirth);
+		}
+		
+		if(dc.isFull(joinYear, joinMonth, joinDay)) {
+			transJoin = dc.dateCheck(joinYear, joinMonth, joinDay);
+			vo.setJoinDate(transJoin);
+		}
 		
 		return personDao.insertMem(vo);
 	}

@@ -109,7 +109,7 @@
 		width: 80px;
 	}
 	
-	#birthMonth, #birthDate, #joinMonth, #joinDate {
+	#birthMonth, #birthDate, #joinMonth, #joinDay {
 		width: 50px;
 	}
 	
@@ -143,7 +143,7 @@
 		
 		//스페이스바 입력 방지
 		$('input').on('keydown', function(e) {
-			if(e.which === 32){
+			if(e.key === ' ' && $(this).attr('id') !== 'comments'){
 				e.preventDefault();
 				alert('스페이스바 입력 금지');
 			}
@@ -319,10 +319,10 @@
 		});
 			
 		//일 2자리, 유효성 검사
-		 $('#joinDate').on('blur', function() {
+		 $('#joinDay').on('blur', function() {
 			 let year = $('#joinYear').val();
 				let month = $('#joinMonth').val();
-				let date = parseInt($('#joinDate').val());
+				let date = parseInt($('#joinDay').val());
 				let yun = (year%4==0 && year%100 != 0) || (year%400 == 0);
 							
 				if(year == currentYear && month == transCurrentMonth){
@@ -396,21 +396,38 @@
 			        if (!confirm('가입일이 정상적으로 입력되지 않았습니다. 계속 진행할 경우 가입일은 현재 날짜로 입력됩니다. 진행하시겠습니까?')) {
 			        	return;
 			        }else{
-			        	alert('성공이다');
+			        	$('#registMemFrm').submit();
 			        }		        	
 		        }
 		    }else if($('#joinYear').val() == '' || $('#joinMonth').val() == '' || $('#joinDate').val() == '') {
 		        if (!confirm('가입일이 정상적으로 입력되지 않았습니다. 계속 진행할 경우 가입일은 현재 날짜로 입력됩니다. 진행하시겠습니까?')) {
 		            return; // 사용자가 확인을 누르지 않으면 함수 종료
 		        }else{
-		        	alert('성공이다');
+		        	$('#registMemFrm').submit();
 		        }
 			}else{
-				alert('성공이다');
 				$('#registMemFrm').submit();
 			}
 		});
+		
+		//체크박스 전체 선택
+		$('#chkAll').on('change', function() {
+			let isChecked = $(this).prop('checked');
+			
+			$('input[type=checkbox]').prop('checked', isChecked);
+		});
+		
 	});
+	
+	//날짜 변경 함수 yyyy-MM-dd
+	function transDate(date) {
+		let transDate = new Date(date);
+		
+		let month = (transDate.getMonth() + 1).toString().padStart(2, '0');
+		let day = transDate.getDate().toString().padStart(2, '0');
+		
+		return transDate.getFullYear() + '-' + month + '-' + day;
+	}
 	
 	//회원 리스트 가져오는 ajax
 	$.getPersonList = function() {
@@ -421,11 +438,22 @@
 			dataType: 'json',
 			success:function(res){
 				let str = "";
+				let num = 1;
 				if(res != null && res.length>0){
 					$.each(res, function() {
+						let transJoinDate = new Date(this.joinDate);
+						
 						str += "<tr>";
-						str	+= "<td>" + this.NAME + "</td>";
+						str	+= "<td>" +"<input type='checkbox' class='form-check-input' value = '"+this.userNum+"'>" + "</td>";
+						str	+= "<td>" + num + "</td>";
+						str	+= "<td>" + this.name + "</td>";
+						str	+= "<td>" + this.gender + "</td>";
+						str	+= "<td>" + this.type + "</td>";
+						str	+= "<td>" + transDate(this.joinDate) + "</td>";
+						str	+= "<td>" + this.comments + "</td>";
 						str	+= "</tr>";
+						
+						num++;
 					});
 				}else{
 					str = "<tr>"
@@ -475,7 +503,7 @@
 					<table class="table table-hover">
 						<thead class="table-light">
 							<tr>
-								<th scope="col" width="6%">선택</th>
+								<th scope="col" width="6%"><input type="checkbox" class="form-check-input" id="chkAll"></th>
 								<th scope="col" width="6%">연번</th>
 								<th scope="col" width="14%">이름</th>
 								<th scope="col" width="6%">성별</th>
@@ -583,7 +611,7 @@
 							<div class="col-auto" id="day1">
 								<input type="text" id="joinYear" name="joinYear" class="form-control col"><span>년</span>
 								<input type="text" id="joinMonth" name="joinMonth" class="form-control col"><span>월</span>
-								<input type="text" id="joinDate" name="joinDate" class="form-control col"><span>일</span>
+								<input type="text" id="joinDay" name="joinDay" class="form-control col"><span>일</span>
 							</div>
 						</div>
 						<div class="mb-3 row">

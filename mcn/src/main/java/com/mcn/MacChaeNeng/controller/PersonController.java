@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,7 +32,6 @@ public class PersonController {
 	
 	@GetMapping("/main")
 	public String mcnLogin() {
-		logger.info("로그인 화면 출력");
 		
 		return "main";
 	}
@@ -39,14 +39,13 @@ public class PersonController {
 	//일반 유저 고려한 회원가입
 	@GetMapping("/signin")
 	public void mcnSignIn() {
-		logger.info("회원가입 화면 출력");
+
 	}
 	
 	//아이디 중복 확인
 	@ResponseBody
 	@RequestMapping("/ajaxIdDubCheck")
 	public Map<String, Object> ajaxIdDubCheck(@RequestParam String userId) {
-		logger.info("아이디 중복 확인 파라미터 userId = {}", userId);
 		
 		int result = personService.idDubCheck(userId);
 		
@@ -58,7 +57,6 @@ public class PersonController {
 			str = "*사용 가능한 아이디 입니다.";
 		}
 		
-		logger.info("아이디 중복 확인 결과, result = {}, dub = {}", result, dub);
 		
 		Map<String, Object> response = new HashMap<>();
 		
@@ -71,7 +69,6 @@ public class PersonController {
 	//일반 유저 회원가입 처리
 	@PostMapping("/signin")
 	public String mcnSignIn(@RequestParam String id, @RequestParam String pwd, HttpServletRequest request, Model model) {
-		logger.info("회원가입 처리, 파라미터 id={}, pwd={}", id, pwd);
 		
 		String msg = "회원가입 중 오류가 발생하였습니다. <br>관리자에게 문의해주시기 바랍니다.", url = "/main";
 		
@@ -91,7 +88,6 @@ public class PersonController {
 	//로그인 처리
 	@PostMapping("/login")
 	public String login(@RequestParam String id, @RequestParam String pwd, HttpServletRequest request, HttpServletResponse response, Model model) {
-		logger.info("로그인처리, 파라미터 id = {}, pwd = {}", id, pwd);
 		
 		String msg = "로그인 중 오류가 발생하였습니다. 다시 시도해주시기 바랍니다.", url = "/main";
 		
@@ -118,31 +114,33 @@ public class PersonController {
 	//로그인 시 홈으로 이동
 	@GetMapping("/home")
 	public void home() {
-		logger.info("홈 화면 이동");
+
 	}
 	
 	//회원관리 화면 이동
 	@GetMapping("/memberManag")
 	public void memberManag() {
-		logger.info("회원 관리 화면 이동");
+	
 	}
 	
 	//회원 리스트 조회
 	@ResponseBody
 	@RequestMapping("/memberManag/AjaxGetMemList")
 	public List<PersonVO> getPersonList(@RequestParam String searchName) {
-		logger.info("회원 리스트 조회, 파라미터 searchName = {}", searchName);
 		
 		List<PersonVO> list = personService.selectPersonAll(searchName);
 		
 		return list;
 	}
 	
+	//회원등록
 	@RequestMapping("/memberManag/registMem")
-	public String registMem(@RequestParam PersonVO vo, Model model) {
-		logger.info("회원등록, 파라미터 vo = {}", vo);
+	@PostMapping
+	public String registMem(@ModelAttribute PersonVO vo, @RequestParam String birthYear,  @RequestParam String birthMonth, 
+			 @RequestParam String birthDate, @RequestParam String joinYear, @RequestParam String joinMonth, @RequestParam String joinDay,
+			 Model model) {
 		
-		int cnt = personService.insertMem(vo);
+		int cnt = personService.insertMem(vo, birthYear, birthMonth, birthDate, joinYear, joinMonth, joinDay);
 		
 		String msg = "회원등록 중 문제가 발생했습니다. 다시 시도해주시기 바랍니다.", 
 				url = "/memberManag";
