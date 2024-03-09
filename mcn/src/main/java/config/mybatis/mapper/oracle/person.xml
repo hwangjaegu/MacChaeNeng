@@ -36,7 +36,47 @@
 		<selectKey keyProperty="userNum" order="BEFORE" resultType="int">
 			SELECT usernum_seq.nextval FROM dual
 		</selectKey>
-		INSERT INTO PERSON(USERNUM, NAME, GENDER, TYPE, WEIGHT, COMMENTS) VALUES(#{userNum}, #{name}, #{gender}, #{type}, #{weight}, #{comments})
+		INSERT INTO PERSON(USERNUM, NAME
+		<if test="birth != null">
+			, BIRTH
+		</if>
+		<if test="joinDate != null">
+			, JOINDATE
+		</if>
+		, GENDER, TYPE, WEIGHT, COMMENTS) VALUES(#{userNum}, #{name}
+		<if test="birth != null">
+			, #{birth}
+		</if>
+		<if test="joinDate != null">
+			, #{joinDate}
+		</if>
+		, #{gender}, #{type}, #{weight}, #{comments})
 	</insert>
+	
+	<!-- 회원정보 상세조회 -->
+	<select id="selectByUserNum" parameterType="int" resultType="personVo">
+		SELECT * FROM PERSON WHERE USERNUM = #{userNum}
+	</select>
+	
+	<!-- 회원정보 수정 -->
+	<update id="updatePersonInfo" parameterType="personVo">
+		UPDATE PERSON
+		SET NAME = #{name} 
+		<if test="birth != null">
+			,BIRTH = #{birth}
+		</if>
+		<if test="joinDate != null">
+			,JOINDATE = #{joinDate}
+		</if>
+		, GENDER = #{gender}, TYPE = #{type},
+		WEIGHT = #{weight}, COMMENTS = #{comments}
+		WHERE USERNUM = #{userNum}
+	</update>
+	
+	<!-- 회원정보 삭제 -->
+	<delete id="deletePerson" parameterType="int">
+		DELETE FROM PERSON WHERE USERNUM = #{userNum}
+	</delete>
+		
 		
 </mapper>

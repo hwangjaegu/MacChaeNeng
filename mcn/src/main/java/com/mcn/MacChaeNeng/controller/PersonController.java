@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.mcn.MacChaeNeng.person.model.UserNumList;
 import com.mcn.MacChaeNeng.person.model.PersonService;
 import com.mcn.MacChaeNeng.person.model.PersonVO;
 
@@ -134,8 +136,7 @@ public class PersonController {
 	}
 	
 	//회원등록
-	@RequestMapping("/memberManag/registMem")
-	@PostMapping
+	@PostMapping("/memberManag/registMem")
 	public String registMem(@ModelAttribute PersonVO vo, @RequestParam String birthYear,  @RequestParam String birthMonth, 
 			 @RequestParam String birthDate, @RequestParam String joinYear, @RequestParam String joinMonth, @RequestParam String joinDay,
 			 Model model) {
@@ -147,6 +148,97 @@ public class PersonController {
 		
 		if(cnt>0) {
 			msg = "회원등록이 완료되었습니다.";
+		}
+		
+		model.addAttribute("msg", msg);
+		model.addAttribute("url", url);
+		
+		return "common/message";
+	}
+	
+	//회원정보 상세조회
+	@RequestMapping("/memberManag/personDetail")
+	@GetMapping
+	public String personDetail(@RequestParam(defaultValue = "0")int userNum, Model model) {
+		PersonVO vo = personService.selectByUserNum(userNum);
+		String msg = "처리 중 오류가 발생하였습니다. 다시 시도해주시기 바랍니다.";
+		String url = "/memberManag";
+		
+		if(vo == null) {
+			model.addAttribute("msg", msg);
+			model.addAttribute("url", url);
+			
+			return "common/message";
+			
+		}else {
+			model.addAttribute("person", vo);
+			
+			return "memberManag/personDetail";
+		}
+	}
+	
+	//회원정보 수정
+	@RequestMapping("/memberManag/updatePerson")
+	@PostMapping
+	public String updatePerson(@ModelAttribute PersonVO vo, @RequestParam String birthYear,  @RequestParam String birthMonth, 
+			 @RequestParam String birthDate, @RequestParam String joinYear, @RequestParam String joinMonth, @RequestParam String joinDay,
+			 Model model) {
+		
+		int cnt = personService.updatePersonInfo(vo, birthYear, birthMonth, birthDate, joinYear, joinMonth, joinDay);
+		
+		String msg = "처리 중 오류가 발생하였습니다. 다시 시도해주시기 바랍니다.";
+		String url = "/memberManag/personDetail?userNum="+vo.getUserNum();
+		
+		if(cnt>0) {
+			msg = "회원정보 수정이 완료되었습니다.";
+			url = "/memberManag/personDetail?userNum="+vo.getUserNum();
+		}
+		
+		model.addAttribute("msg", msg);
+		model.addAttribute("url", url);
+		
+		return "common/message";
+	}
+	
+	//회원정보 삭제
+	@GetMapping("/memberManag/deletePerson")
+	public String deletePerson_get(@RequestParam(defaultValue = "0")int userNum, Model model) {
+		
+		int cnt = personService.deletePerson(userNum);
+		
+		String msg = "처리 중 오류가 발생하였습니다. 다시 시도해주시기 바랍니다.";
+		String url = "/memberManag/personDetail?userNum="+userNum;
+		
+		if(cnt>0) {
+			msg = "회원정보 삭제가 완료되었습니다.";
+			url = "/memberManag";
+		}
+		
+		model.addAttribute("msg", msg);
+		model.addAttribute("url", url);
+		
+		return "common/message";
+	}
+	
+	//회원정보 단체 삭제
+	@PostMapping("/memberManag/deletePerson")
+	@Transactional
+	public String deletePerson_post(@ModelAttribute UserNumList list, Model model) {
+		
+		int sum = 0;
+		int total = 0;
+		int cnt = 0;
+		for(int a : list.getUserNum()) {
+			if(list.getUserNum() != null) {
+				cnt = personService.deletePerson(a);
+				sum += cnt;
+				total ++;
+			}
+		}
+		
+		String msg = "삭제처리에 실패하였습니다. 다시 시도해주시기 바랍니다..", url = "/memberManag";
+		if(sum == total) {
+			msg = "회원정보가 삭제되었습니다.";
 		}
 		
 		model.addAttribute("msg", msg);

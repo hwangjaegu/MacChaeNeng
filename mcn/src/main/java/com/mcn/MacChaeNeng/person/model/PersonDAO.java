@@ -12,4 +12,7 @@ public interface PersonDAO {
 	String selectSaltByUserNum(int userNum);
 	List<PersonVO> selectPersonAll(String name);
 	int insertMem(PersonVO vo);
+	PersonVO selectByUserNum(int userNum);
+	int updatePersonInfo(PersonVO vo);
+	int deletePerson(int userNum);
 }

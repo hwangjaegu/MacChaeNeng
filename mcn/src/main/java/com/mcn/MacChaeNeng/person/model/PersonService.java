@@ -18,4 +18,8 @@ public interface PersonService {
 	List<PersonVO> selectPersonAll(String name);
 	int insertMem(PersonVO vo, String birhYear, String birthMonth, String birthDate,
 				String joinYear, String joinMonth, String joinDay);
+	PersonVO selectByUserNum(int userNum);
+	int updatePersonInfo(PersonVO vo, String birhYear, String birthMonth, String birthDate,
+			String joinYear, String joinMonth, String joinDay);
+	int deletePerson(int userNum);
 }

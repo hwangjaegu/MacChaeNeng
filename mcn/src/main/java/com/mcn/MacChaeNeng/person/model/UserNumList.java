@@ -5,6 +5,6 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class PersonListVO {
-	private List<PersonVO> personVoList;
+public class UserNumList {
+	private List<Integer> userNum;
 }

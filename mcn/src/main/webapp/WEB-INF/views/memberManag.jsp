@@ -77,8 +77,8 @@
 		cursor: pointer;
 	}
 	
-	.algin-right {
-		
+	.divPage {
+		margin-top: 20px;
 	}
 	
 	.clear {
@@ -392,14 +392,14 @@
 			}else if($('#birthYear').val() == '' || $('#birthMonth').val() == '' || $('#birthDate').val() == ''){
 				if (!confirm('생일이 정상적으로 입력되지 않았습니다. 계속 진행할 경우 생년월일은 입력되지 않습니다. 진행하시겠습니까?')) {
 		            return; // 사용자가 확인을 누르지 않으면 함수 종료
-		        }else if($('#joinYear').val() == '' || $('#joinMonth').val() == '' || $('#joinDate').val() == ''){
+		        }else if($('#joinYear').val() == '' || $('#joinMonth').val() == '' || $('#joinDay').val() == ''){
 			        if (!confirm('가입일이 정상적으로 입력되지 않았습니다. 계속 진행할 경우 가입일은 현재 날짜로 입력됩니다. 진행하시겠습니까?')) {
 			        	return;
 			        }else{
 			        	$('#registMemFrm').submit();
 			        }		        	
 		        }
-		    }else if($('#joinYear').val() == '' || $('#joinMonth').val() == '' || $('#joinDate').val() == '') {
+		    }else if($('#joinYear').val() == '' || $('#joinMonth').val() == '' || $('#joinDay').val() == '') {
 		        if (!confirm('가입일이 정상적으로 입력되지 않았습니다. 계속 진행할 경우 가입일은 현재 날짜로 입력됩니다. 진행하시겠습니까?')) {
 		            return; // 사용자가 확인을 누르지 않으면 함수 종료
 		        }else{
@@ -415,6 +415,34 @@
 			let isChecked = $(this).prop('checked');
 			
 			$('input[type=checkbox]').prop('checked', isChecked);
+		});
+		
+		//회원정보 상세조회
+		$('#personList').on('click', 'td:not(.userNum)', function() {
+			location.href = 'memberManag/personDetail?userNum=' + $(this).parent().find('input').val();
+		});
+		
+		//회원삭제 버튼 클릭 시
+		$('#deleteMemBtn').click(function() {
+			if($('td>input[type=checkbox]:checked').length<1){
+				alert('삭제시킬 회원을 선택하세요.');
+			}else{
+				if(confirm('선택된 회원정보를 삭제하시겠습니까? \n삭제 시 해당 정보는 복원되지 않습니다.')){
+					$('#chkFrm').submit();
+				}
+			}
+		});
+		
+		//회원이름 검색
+		$('#searchBtn').click(function() {
+			$.getPersonList();
+		});
+		
+		//엔터키 입력해서 회원이름 검색
+		$('#searchName').keypress(function(event) {
+		    if (event.which === 13) { 
+		        $.getPersonList();
+		    }
 		});
 		
 	});
@@ -444,7 +472,7 @@
 						let transJoinDate = new Date(this.joinDate);
 						
 						str += "<tr>";
-						str	+= "<td>" +"<input type='checkbox' class='form-check-input' value = '"+this.userNum+"'>" + "</td>";
+						str	+= "<td class='userNum'>" +"<input type='checkbox' class='form-check-input' name = 'userNum' value = '"+this.userNum+"'>" + "</td>";
 						str	+= "<td>" + num + "</td>";
 						str	+= "<td>" + this.name + "</td>";
 						str	+= "<td>" + this.gender + "</td>";
@@ -483,23 +511,23 @@
 			</div>
 
 			<div class="row">
-				<form action=""  class="row" id="searchByNameFrm">
+				<!-- <form action=""  class="row" id="searchByNameFrm"> -->
 					<div class="col-auto">
 						<label for="searchName" class="visually-hidden">name</label> <input
 							type="text" class="form-control" id="searchName" name="searchName"
 							placeholder="이름으로 검색">
 					</div>
 					<div class="col-auto">
-						<button type="submit" class="btn btn-primary" id="searchBtn">검색</button>
+						<button type="button" class="btn btn-primary" id="searchBtn">검색</button>
 						<button type="button" class="btn btn-success" id="registMemBtn" data-bs-toggle="modal"
 		data-bs-target="#registMemModal">회원등록</button>
-						<button class="btn btn-outline-danger" id="deleteMemBtn">회원삭제</button>
+						<button type="button" class="btn btn-outline-danger" id="deleteMemBtn">회원삭제</button>
 					</div>
-				</form>
+				<!-- </form> -->
 			</div>
 
 			<div class="row">
-				<form action="" id="chkFrm">
+				<form action="<c:url value="/memberManag/deletePerson"/>" id="chkFrm" method="post">
 					<table class="table table-hover">
 						<thead class="table-light">
 							<tr>
@@ -513,20 +541,42 @@
 							</tr>
 						</thead>
 						<tbody id="personList">
-							<!-- <tr>
-								<th>
-									<input type="checkbox" class="custom-checkbox">
-								</th>
-								<th scope="row">1</th>
-								<td>황재구</td>
-								<td>남</td>
-								<td>C</td>
-								<td>2023.10.10</td>
-								<td>가나다라마바사아자차카타망먼ㅁ아ㅣㅁㅇ눌나</td>
-							</tr> -->
+							
 						</tbody>
 					</table>
 				</form>
+			</div>
+			<div class="divPage row">
+				<nav aria-label="...">
+					<ul class="pagination justify-content-center">
+						<c:if test="${pagingInfo.firstPage>1 }">
+							<li
+								class="page-item <c:if test='${pagingInfo.firstPage <=1 }'>disabled</c:if>">
+								<a class="page-link" href="#" aria-label="Previous"
+								onclick="pageFunc(${pagingInfo.firstPage-1})">이전</a>
+							</li>
+						</c:if>
+						<c:forEach var="i" begin="${pagingInfo.firstPage }"
+							end="${pagingInfo.lastPage }">
+							<c:if test="${i == pagingInfo.currentPage }">
+								<li class="page-item active" aria-current="page"><a
+									class="page-link" href="#">${i}</a></li>
+							</c:if>
+							<c:if test="${i != pagingInfo.currentPage }">
+								<li class="page-item"><a class="page-link"
+									aria-label="Previous" href="#" onclick="pageFunc(${i})">${i }</a>
+								</li>
+							</c:if>
+						</c:forEach>
+						<c:if test="${pagingInfo.lastPage < pagingInfo.totalPage }">
+							<li
+								class="page-item <c:if test='${pagingInfo.lastPage >= pagingInfo.totalPage }'>disabled</c:if>">
+								<a class="page-link" href="#"
+								onclick="pageFunc(${pagingInfo.lastPage+1})">다음</a>
+							</li>
+						</c:if>
+					</ul>
+				</nav>
 			</div>
 		</section>
 	

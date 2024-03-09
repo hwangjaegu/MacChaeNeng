@@ -132,6 +132,41 @@ public class PersonServiceImpl implements PersonService{
 		return personDao.insertMem(vo);
 	}
 	
+	//userNum으로 회원정보 상세조회
+	@Override
+	public PersonVO selectByUserNum(int userNum) {
+		return personDao.selectByUserNum(userNum);
+	}
+	
+	//회원정보 수정
+	@Override
+	public int updatePersonInfo(PersonVO vo, String birhYear, String birthMonth, String birthDate,
+			String joinYear, String joinMonth, String joinDay) {
+		DateCheck dc = new DateCheck();
+		
+		Date transBirth = null;
+		Date transJoin = null;
+		
+		if(dc.isFull(birhYear, birthMonth, birthDate)) {
+			transBirth = dc.dateCheck(birhYear, birthMonth, birthDate);
+			vo.setBirth(transBirth);
+		}
+		
+		if(dc.isFull(joinYear, joinMonth, joinDay)) {
+			transJoin = dc.dateCheck(joinYear, joinMonth, joinDay);
+			vo.setJoinDate(transJoin);
+		}
+		
+		return personDao.updatePersonInfo(vo);
+	}
+	
+	//회원정보 삭제
+	@Override
+	public int deletePerson(int userNum) {
+		
+		return personDao.deletePerson(userNum);
+	}
+	
 	
 	
 	
