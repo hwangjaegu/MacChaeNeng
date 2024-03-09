@@ -60,7 +60,7 @@
 		<li>
 			모임운영
 			<ul>
-				<li><a href="#">모임운영</a></li>
+				<li><a href="<c:url value='/operation/operManag'/>"> 모임운영</a></li>
 				<li><a href="#">모임운영이력조회</a></li>
 			</ul>
 		</li>
