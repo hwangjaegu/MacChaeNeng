@@ -16,9 +16,9 @@
 	}
 	
 	/* div 확인용*/
-	/* * {
+	 /* * {
 		border: 1px solid #000;
-	} */
+	}  */
 	
 	.row {
 		margin-left: 0px;
@@ -55,17 +55,13 @@
 		padding-left: 10px;
 	}
 	
-	.custom-checkbox {
-    	width: 20px;
-	   	height: 20px;
-	}
 	
 	.table {
 		width: 97%;
 		margin: 0px 0px 0px 20px;
 	}
 	
-	tbody {
+	tbody tr {
 		cursor: pointer;
 	}
 	
@@ -79,16 +75,100 @@
 	
 	#listDiv {
 		margin-top: 20px;
+		height: 250px;
+		overflow: auto; 
 	}
 	
+	table {
+		width: 100%; /* 테이블의 너비를 100%로 설정하여 부모 요소에 맞춤 */
+	}
+   
+	thead {
+    	position: sticky; /* 헤더를 고정 */
+        top: 0; /* 헤더를 창의 상단에 고정 */
+        z-index: 1; /* 다른 요소 위에 표시 */
+    }
+    
+    tbody tr {
+    	height: 20px;
+    }
+	
 	#selectedDiv {
+		height: 250px;
+	}
+	
+	#selectedSpan {
 		margin-top: 20px;
 	}
 	
 </style>
 
 <script type="text/javascript">
-
+	$(function() {
+		$.getPersonList();
+		
+		//스페이스바 입력 방지
+		$('input').on('keydown', function(e) {
+			if(e.key === ' ' && $(this).attr('id') !== 'comments'){
+				e.preventDefault();
+				alert('스페이스바 입력 금지');
+			}
+		});
+		
+		//회원이름 검색
+		$('#searchBtn').click(function() {
+			$.getPersonList();
+		});
+	});
+	
+	//날짜 변경 함수 yyyy-MM-dd
+	function transDate(date) {
+		let transDate = new Date(date);
+		
+		let month = (transDate.getMonth() + 1).toString().padStart(2, '0');
+		let day = transDate.getDate().toString().padStart(2, '0');
+		
+		return transDate.getFullYear() + '-' + month + '-' + day;
+	}
+	
+	//회원 리스트 가져오는 ajax
+	$.getPersonList = function() {
+		$.ajax({
+			url: "<c:url value='/memberManag/AjaxGetMemList'/>",
+			type: 'get',
+			data: { searchName: $('#searchName').val() },
+			dataType: 'json',
+			success:function(res){
+				let str = "";
+				let num = 1;
+				if(res != null && res.length>0){
+					$.each(res, function() {
+						let transJoinDate = new Date(this.joinDate);
+						
+						str += "<tr>";
+						str	+= "<td>" + this.name + "</td>";
+						str	+= "<td>" + this.gender + "</td>";
+						str	+= "<td>" + this.type + "</td>";
+						str	+= "<td>" + transDate(this.joinDate) + "</td>";
+						str	+= "<td>" + this.comments + "</td>";
+						str	+= "</tr>";
+						
+						num++;
+					});
+				}else{
+					str = "<tr>"
+						+ "<td colspan = '7'>등록된 회원이 없습니다. 회원을 등록해주세요.<td>"
+						+ "</tr>";
+				}
+				
+				$('#personList').html(str);
+			},
+			error:function(xhr, status, error){
+				alert(status + " : " + error);
+			}
+				
+		});	
+	};
 </script>
 
 </head>
@@ -119,7 +199,7 @@
 							<th scope="col" width="14%">이름</th>
 							<th scope="col" width="6%">성별</th>
 							<th scope="col" width="6%">급수</th>
-							<th scope="col" width="10%">가입일</th>
+							<th scope="col" width="18%">가입일</th>
 							<th scope="col" class="custom-width" width="52%">비고</th>
 						</tr>
 					</thead>
@@ -128,25 +208,29 @@
 					</tbody>
 				</table>
 			</div>
-			<div class="row" id="selectedDiv">
-				<div class="row text-left">
-					<span>선택된 회원목록</span>
-				</div>
-				<table class="table table-hover">
-					<thead class="table-light">
-						<tr>
-							<th scope="col" width="14%">이름</th>
-							<th scope="col" width="6%">성별</th>
-							<th scope="col" width="6%">급수</th>
-							<th scope="col" width="10%">가입일</th>
-							<th scope="col" class="custom-width" width="52%">비고</th>
-						</tr>
-					</thead>
-					<tbody id="selectedList">
-
-					</tbody>
-				</table>
+			<div class="row text-left">
+				<span id="selectedSpan">선택된 회원목록</span>
 			</div>
+			<form action="<c:url value='/operation/operationManag/saveSelectedMemFrm'/>" method="post" id="selectedMem">
+				<div class="row" id="selectedDiv">
+					
+						<table class="table table-hover">
+							<thead class="table-light">
+								<tr>
+									<th scope="col" width="14%">이름</th>
+									<th scope="col" width="6%">성별</th>
+									<th scope="col" width="6%">급수</th>
+									<th scope="col" width="10%">가입일</th>
+									<th scope="col" class="custom-width" width="52%">비고</th>
+								</tr>
+							</thead>
+	
+							<tbody id="selectedList">
+	
+							</tbody>
+						</table>
+				</div>
+			</form>
 		</section>
 	
 		<%@ include file="../form/bottom2.jsp" %>
