@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mcn.MacChaeNeng.deposit.model.DepositDAO">
+	
+	<!-- 회비 불러오기 -->
+	<select id="selectDeposit" resultType="depositVo">
+		SELECT * FROM DEPOSIT
+	</select>
+	
+	<!-- 회비 수정 -->
+	<update id="updateDeposit" parameterType="depositVo">
+		UPDATE FROM DEPOSIT
+		SET FEE = #{fee}
+		WHERE DEPOSIT_NUM = #{deposit_num}
+	</update>
+</mapper>

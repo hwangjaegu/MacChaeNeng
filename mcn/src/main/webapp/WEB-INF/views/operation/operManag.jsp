@@ -60,7 +60,7 @@
 		margin-top: 10px;
 	}
 	
-	#deposiDiv {
+	#depositDiv {
 		margin-bottom: 20px;
 	}
 	
@@ -69,6 +69,13 @@
 		margin: 0px 5px 0px 5px;
 	}
 	
+	.men {
+		--bs-table-bg: #d3daeb;
+	}
+	
+	.women {
+		--bs-table-bg: #efd4d6;
+	}
 	
 </style>
 
@@ -85,11 +92,16 @@
 		//선택된 tr 색변화
 		updateSelectedClass();
 		
+		//이미 저장된 인원 수
+		personCount();
+		
 		//로컬에 저장된 회원 목록 불러오기
 		savedSelectedMemRows();
 
 		//로컬에 저장된 입금 목록 불러오기
 		savedDepositCheckRows(selectedMemRows);
+		
+		getGameMemList();
 		
 		//스페이스바 입력 방지
 		$('input').on('keydown', function(e) {
@@ -116,7 +128,8 @@
 		
 		//선택한 인원 정보 밑으로 내리기
 		$('#personList').on('click', 'tr', function() {
-			let userNum = $(this).find('input').val();
+			let userNum = $(this).find('input[name=userNum]').val();
+			let weight = $(this).find('input[name=weight]').val();
 			let name = $(this).find('td[name=userName]').html();
 		    let gender = $(this).find('td[name=gender]').html();
 		    let type = $(this).find('td[name=type]').html();
@@ -126,23 +139,23 @@
 		    selectedMemRows = JSON.parse(localStorage.getItem('selectedMemRows')) || [];
 		    
 			if (!selectedMemRows.some(item => item.userNum == userNum)) {
-				addToLocalStorage(userNum, name, gender, type, transDate, comments);
+				addToLocalStorage(userNum, weight, name, gender, type, transDate, comments);
 		        $('#baseTr').css('display', 'none');
 		        let newRow = $(this).clone();
 		        $('#selectedList').append(newRow);
 		        newRow.css('height', '20px');
+				
+		        updateSelectedClass();
+				personCount();
+				changeSelectedMem();
 		    } else {
 		        alert('이미 선택된 회원입니다.');
 		    }
-			$('#isClickSaveBtn').val('0');
-			$('#isClickSaveDepositBtn').val('0');
-			updateSelectedClass();
-			personCount();
 		});
 		
 		//선택된 회원 취소시키기
 		$('#selectedList').on('click', 'tr', function() {
-			let userNum = $(this).find('input').val();
+			let userNum = $(this).find('input[name=userNum]').val();
 			
 			removeFromLocalStorage(userNum);
 			
@@ -154,10 +167,9 @@
 				 $('#baseTr').show();
 			}
 			
-			$('#isClickSaveBtn').val('0');
-			$('#isClickSaveDepositBtn').val('0');
 			updateSelectedClass();
 			personCount();
+			changeSelectedMem();
 		});
 		
 		//선택된 인원 로컬스토리지에 저장, depositCheckRows에 데이터 저장 및 입금리스트 작성
@@ -171,6 +183,7 @@
 				let depositCheckRows = [];
 				localStorage.setItem('depositCheckRows', JSON.stringify(depositCheckRows));
 				$('#depositList').html(tr);
+				getGameMemList();
 			}else{
 				if(confirm('참여 인원을 저장하시겠습니까?')){
 					alert('참여 인원 저장이 완료되었습니다.');
@@ -178,7 +191,7 @@
 					$('#member').removeClass('show active');
 					$('#deposit-tab').addClass('active');
 					$('#deposit').addClass('show active');
-					$('#isClickSaveBtn').val('1');
+					selectedBtnClick();
 
 					let depositCheckRows = [];
 					
@@ -219,8 +232,9 @@
 					
 					$('#depositList').html(tr);
 					
-					
 					localStorage.setItem('depositCheckRows', JSON.stringify(depositCheckRows));
+					
+					getGameMemList();
 				}
 			}
 			
@@ -241,10 +255,11 @@
 		}
 		
 		//로컬스토리지에 회원정보 저장
-		function addToLocalStorage(userNum, name, gender, type, transDate, comments) {
+		function addToLocalStorage(userNum, weight, name, gender, type, transDate, comments) {
 			
 			let selectedMem = {
 					userNum: userNum,
+					weight: weight,
 					name: name,
 					gender: gender,
 					type: type,
@@ -279,7 +294,8 @@
 				
 				selectedMemRows.forEach(function(mem) {
 					let tr = '<tr>';
-					tr += "<input type='hidden' name='input' value='" + mem.userNum + "'>";
+					tr += "<input type='hidden' name='userNum' value='" + mem.userNum + "'>";
+					tr += "<input type='hidden' name='weight' value='" + mem.weight + "'>";
 					tr += "<td name='userName'>" + mem.name + "</td>";
 					tr += "<td name='gender'>" + mem.gender + "</td>";
 					tr += "<td name='type'>" + mem.type + "</td>";
@@ -315,31 +331,24 @@
 					tr += "<td name=userName>" + depositChk.name + "</td>";
 					
 					let isDeposit = depositChk.isDeposit;
-					
+				
 					tr += "<td name='depositChk'>"
 					
-					if(isDeposit == 'o'){
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='ok" + num + "' autocomplete='off' value='o' checked>";
-						tr += "<label class='btn btn-outline-success' for='ok" + num + "'>입금완료</label>";
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='non" + num + "' autocomplete='off' value='n'>";
-						tr += "<label class='btn btn-outline-warning' for='non" + num + "'>미입금</label>";
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='fine" + num + "' autocomplete='off' value='f'>";
-						tr += "<label class='btn btn-outline-danger' for='fine" + num + "'>벌금</label>";
-					}else if(isDeposit == 'f'){
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='ok" + num + "' autocomplete='off' value='o'>";
-						tr += "<label class='btn btn-outline-success' for='ok" + num + "'>입금완료</label>";
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='non" + num + "' autocomplete='off' value='n'>";
-						tr += "<label class='btn btn-outline-warning' for='non" + num + "'>미입금</label>";
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='fine" + num + "' autocomplete='off' value='f' checked>";
-						tr += "<label class='btn btn-outline-danger' for='fine" + num + "'>벌금</label>";
-					}else{
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='ok" + num + "' autocomplete='off' value='o'>";
-						tr += "<label class='btn btn-outline-success' for='ok" + num + "'>입금완료</label>";
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='non" + num + "' autocomplete='off' value='n' checked>";
-						tr += "<label class='btn btn-outline-warning' for='non" + num + "'>미입금</label>";
-						tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='fine" + num + "' autocomplete='off' value='f'>";
-						tr += "<label class='btn btn-outline-danger' for='fine" + num + "'>벌금</label>";
-					}
+					let options = [
+				    	{ value: 'o', label: '입금완료', class: 'btn-outline-success' },
+				    	{ value: 'c', label: '쿠폰', class: 'btn-outline-primary' },
+				    	{ value: 'a', label: '운영진', class: 'btn-outline-secondary' },
+				    	{ value: 'p', label: '담당', class: 'btn-outline-secondary' },
+				    	{ value: 'n', label: '미입금', class: 'btn-outline-warning' },
+				    	{ value: 'f', label: '벌금', class: 'btn-outline-danger' }
+				    ];
+
+				    options.forEach(function (option) {
+				    	let checked = depositChk.isDeposit == option.value ? 'checked' : '';
+				    	
+				    	tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='" + option.value + num + "' autocomplete='off' value='" + option.value + "' " + checked + ">";
+				    	tr += "<label class='btn " + option.class + "' for='" + option.value + num + "'>" + option.label + "</label>";
+				    });
 					
 					tr += "</td>";
 					tr += "</tr>";
@@ -351,13 +360,16 @@
 			$('#depositList').html(tr);
 		}
 		
+		$('#depositList input[type=radio]').click(function() {
+			changeDeposit();
+		});
+		
 		//입금 여부 체크 후 저장버튼 클릭 시
 		$('#saveDepositBtn').click(function() {
-			if($('#isClickSaveBtn').val() == 0){
-				alert('참여인원 탭에서 저장하기 버튼을 눌러야 합니다.');
-			}else{
+			let isSelectedBtnClick = JSON.parse(localStorage.getItem('isSelectedBtnClick'));
+			
+			if(isSelectedBtnClick == 1){
 				if(confirm('입금내역을 저장하시겠습니까?')){
-					$('#isClickSaveDepositBtn').val('1');
 					alert('입금 내역을 저장했습니다.');
 					
 					let depositCheckRows = [];
@@ -377,11 +389,95 @@
 					$('#deposit').removeClass('show active');
 					$('#game-tab').addClass('active');
 					$('#game').addClass('show active');
+					depositBtnClick();
 				}
+			}else{
+				alert('참여인원 탭에서 저장하기 버튼을 눌러야 합니다.');
 			}
 			
 		});
 		
+		//gameTab에 게임 참여 인원 현황 만들기
+		function getGameMemList() {
+			let selectedMemList = JSON.parse(localStorage.getItem('selectedMemRows'));
+			
+			let mTr = '';
+			let wTr = '';
+			
+			if(selectedMemList && selectedMemList.length > 0){
+				let mN = 1;
+				let wN = 1;
+				
+				selectedMemList.forEach(function(mem) {
+					let cnt = 0;
+					
+					$('#gameTable input[name=userNum]').each(function() {
+						let userNum = $(this).val();
+						if(mem.userNum == userNum){
+							cnt++
+						}
+					});
+					
+					if(mem.gender == '남'){
+						mTr += "<tr class=men>";
+						mTr += "<input type='hidden' name='userNum'>" + mem.userNum + "</td>";
+						mTr += "<input type='hidden' name='weight'>" + mem.weight + "</td>";
+						mTr += '<td>' + mN + '</td>';
+						mTr += '<td>' + mem.name + '</td>';
+						mTr += '<td>' + mem.type + '</td>';
+						mTr += '<td>' + cnt + '</td>';
+						mTr += '</tr>';
+						
+						mN++;
+					}else{
+						wTr += "<tr class=women>";
+						wTr += "<input type='hidden' name='userNum'>" + mem.userNum + "</td>";
+						wTr += "<input type='hidden' name='weight'>" + mem.weight + "</td>";
+						wTr += '<td>' + wN + '</td>';
+						wTr += '<td>' + mem.name + '</td>';
+						wTr += '<td>' + mem.type + '</td>';
+						wTr += '<td>' + cnt + '</td>';
+						wTr += '</tr>';
+						
+						wN++;
+					}
+				});
+				
+			}else{
+				mTr = '<tr>';	
+				mTr += '<td colspan=3>선택된 인원이 없습니다.</td>';	
+				mTr += '</tr>';
+				
+				wTr = mTr;
+			}
+			
+			$('#menList').html(mTr);
+			$('#womenList').html(wTr);
+		}
+		
+		//참여인원 저장 버튼 클릭 시
+		function selectedBtnClick() {
+			let isSelectedBtnClick = 1;
+			localStorage.setItem('isSelectedBtnClick', JSON.stringify(isSelectedBtnClick));
+		}
+		
+		//참여인원 상태 변화 시
+		function changeSelectedMem() {
+			let isSelectedBtnClick = 0;
+			localStorage.setItem('isSelectedBtnClick', JSON.stringify(isSelectedBtnClick));
+		}
+		
+		//입금 내역 저장 버튼 클릭 시
+		function depositBtnClick() {
+			let isDepositBtnClick = 1;
+			localStorage.setItem('isDepositBtnClick', JSON.stringify(isDepositBtnClick));
+		}
+		
+		//입금 내역 저장 버튼 클릭 시
+		function changeDeposit() {
+			let isDepositBtnClick = 0;
+			localStorage.setItem('isDepositBtnClick', JSON.stringify(isDepositBtnClick));
+		}
 		
 		//회원 리스트 가져오는 ajax
 		function getPersonList() {
@@ -403,6 +499,7 @@
 								str += "<tr>";
 							}
 							str	+= "<input type='hidden' name='userNum' value='" + this.userNum + "'>";
+							str	+= "<input type='hidden' name='weight' value='" + this.weight + "'>";
 							str	+= "<td name='userName'>" + this.name + "</td>";
 							str	+= "<td name='gender'>" + this.gender + "</td>";
 							str	+= "<td name='type'>" + this.type + "</td>";
@@ -431,7 +528,7 @@
 		function personCount() {
 			let cnt = 0;
 			
-			$('#selectedList input').each(function() {
+			$('#selectedList input[name=userNum]').each(function() {
 				cnt++;
 			});
 			
@@ -546,7 +643,6 @@
 							</div>
 							<div class="row">
 								<div class="col align-self-center" >
-									<input type="hidden" id="isClickSaveBtn" value="0">
 									<button class="btn btn-success saveBtn" id="saveBtn">저장하기</button>
 								</div>
 							</div>
@@ -558,7 +654,7 @@
 							<div class="row">
 								<p>회비 입금 여부를 확인하고 해당하는 버튼을 눌러주세요.</p>
 							</div>
-							<div class="row" id="deposiDiv">
+							<div class="row" id="depositDiv">
 								<table class="table table-hover">
 									<thead class="table-light">
 										<tr>
@@ -574,7 +670,6 @@
 							</div>
 							<div class="row">
 								<div class="col align-self-center" >
-									<input type="hidden" id="isClickSaveDepositBtn" value="0">
 									<button class="btn btn-success saveBtn" id="saveDepositBtn">저장하기</button>
 								</div>
 							</div>
@@ -583,6 +678,61 @@
 						
 						<!-- 게임 설정 시 보여야 할 항목들 -->
 						<div class="tab-pane fade" id="game" role="tabpanel" aria-labelledby="game-tab">
+							<div class="row">
+								<p>게임을 구성할 인원을 4명 클릭한 후 등록하기 버튼을 눌러주세요.</p>
+							</div>
+							<div class="row" id="gameDiv">
+								<div class="col-5">
+									게임현황
+									<table class="table" id="gameTable">
+										<thead class="table-light">
+											<tr>
+												<th scope="col" width="10%">순서</th>
+												<th scope="col" width="75%" colspan="4">인원</th>
+												<th scope="col" width="15%">진행여부</th>
+											</tr>
+										</thead>
+										<tbody id="gameList">
+											
+										</tbody>
+									</table>
+								</div>
+								<div class="col-7">
+									게임 참여 인원 현황
+									<div class="row">
+										<div class="col">
+											<table class="table" id="menTable">
+												<thead class="table-light">
+													<tr>
+														<th scope="col" width="20%">번호</th>
+														<th scope="col" width="40%">이름</th>
+														<th scope="col" width="20%">급수</th>
+														<th scope="col" width="20%">게임<br>횟수</th>
+													</tr>
+												</thead>
+												<tbody id="menList">
+												
+												</tbody>
+											</table>
+										</div>
+										<div class="col">
+											<table class="table" id="womenTable">
+												<thead class="table-light">
+													<tr>
+														<th scope="col" width="20%">번호</th>
+														<th scope="col" width="40%">이름</th>
+														<th scope="col" width="20%">급수</th>
+														<th scope="col" width="20%">게임<br>횟수</th>
+													</tr>
+												</thead>
+												<tbody id="womenList">
+												
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 						<!-- 게임 설정 시 보여야 할 항목들 끝-->
 					</div>

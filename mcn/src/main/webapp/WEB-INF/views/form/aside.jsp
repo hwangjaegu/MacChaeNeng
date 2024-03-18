@@ -75,7 +75,7 @@
 			</ul>
 		</li>
 		<li>
-			<a href="">회비관리</a>
+			<a href="<c:url value='/deposit'/>">회비관리</a>
 		</li>
 		<li>
 			<a href="">설정관리</a>

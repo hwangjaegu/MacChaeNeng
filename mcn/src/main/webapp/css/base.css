@@ -70,3 +70,7 @@ body {
 	tbody {
 		cursor: pointer;
 	}
+	
+	tr {
+		vertical-align: middle
+	}
