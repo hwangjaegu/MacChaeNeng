@@ -6,7 +6,7 @@
 	
 	<!-- 회비 불러오기 -->
 	<select id="selectDeposit" resultType="depositVo">
-		SELECT * FROM DEPOSIT
+		SELECT * FROM DEPOSIT ORDER BY CRITERIA_NUM
 	</select>
 	
 	<!-- 회비 수정 -->

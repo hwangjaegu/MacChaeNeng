@@ -2,6 +2,8 @@ package com.mcn.MacChaeNeng.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 public class DepositController {
 	private final DepositService depositService;
 	
+	private final Logger logger = LoggerFactory.getLogger(DepositController.class);
+	
 	//회비 기준 불러오기
 	@RequestMapping("/deposit")
 	public String getDepositList(Model model) {
@@ -29,6 +33,8 @@ public class DepositController {
 			
 			return "common/message";
 		}else {
+			logger.info("list = {}", list);
+			model.addAttribute("list", list);
 			return "deposit";
 		}
 	}

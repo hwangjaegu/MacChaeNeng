@@ -24,9 +24,18 @@
 			<div class="row" id="headerTag">
 				/회비관리			
 			</div>
-			<div class="row">
 			
-			</div>
+			<c:forEach items="${list }" var="item">
+    			<div class="row g-3 align-items-center">
+       				 <div class="col-auto">
+       				 <script type="text/javascript">alert(${item});</script>
+			            <label for="${item.criteria_name }" class="col-form-label">${item.criteria_name}</label>
+			        </div>
+			        <div class="col-auto">
+			            <input type="text" name="${item.criteria_name }" class="form-control" value="">
+			        </div>
+			    </div>
+			</c:forEach>
 		</section>
 	</div>
 </body>
