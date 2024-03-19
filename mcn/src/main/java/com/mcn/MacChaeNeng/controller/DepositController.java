@@ -5,9 +5,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.mcn.MacChaeNeng.common.DepositListForm;
 import com.mcn.MacChaeNeng.deposit.model.DepositService;
 import com.mcn.MacChaeNeng.deposit.model.DepositVO;
 
@@ -33,14 +37,32 @@ public class DepositController {
 			
 			return "common/message";
 		}else {
-			logger.info("list = {}", list);
 			model.addAttribute("list", list);
 			return "deposit";
 		}
 	}
 	
 	//회비 수정하기
-	public void name() {
-		
+	@RequestMapping("/deposit/depositEdit")
+	@Transactional
+	public String depositEdit(@ModelAttribute("depositList") DepositListForm depositListForm, Model model) {
+	    List<DepositVO> depositList = depositListForm.getDepositList();
+	    String msg = "회비 수정 중 오류가 발생했습니다. 다시 시도해주시기 바랍니다.", url = "/deposit";
+	    
+	    int count = 0;
+	    
+	    for(DepositVO item : depositList) {
+	        int cnt = depositService.updateDeposit(item);
+	        count += cnt;
+	    }
+	    
+	    if(count == depositList.size()) {
+	        msg = "회비가 수정되었습니다.";
+	    }
+	        
+	    model.addAttribute("msg", msg);
+	    model.addAttribute("url", url);
+	    
+	    return "common/message";
 	}
 }

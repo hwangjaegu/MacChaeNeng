@@ -6,13 +6,13 @@
 	
 	<!-- 회비 불러오기 -->
 	<select id="selectDeposit" resultType="depositVo">
-		SELECT * FROM DEPOSIT ORDER BY CRITERIA_NUM
+		SELECT * FROM DEPOSIT ORDER BY DEPOSIT_NUM
 	</select>
 	
 	<!-- 회비 수정 -->
 	<update id="updateDeposit" parameterType="depositVo">
-		UPDATE FROM DEPOSIT
+		UPDATE DEPOSIT
 		SET FEE = #{fee}
-		WHERE DEPOSIT_NUM = #{deposit_num}
+		WHERE DEPOSIT_NUM = #{depositNum}
 	</update>
 </mapper>

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class DepositVO {
-	 private int criteriaNum;
-	 private String criteriaName;
+	 private int depositNum;
+	 private String depositCategory;
 	 private int fee;
 }
