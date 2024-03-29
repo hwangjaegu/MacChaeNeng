@@ -5,35 +5,7 @@
 <title>MCN - 회비관리</title>
 
 <link rel="stylesheet" type="text/css" href="<c:url value='/css/base.css'/>">
-
-<style type="text/css">
-	#labelDiv {
-		width: 150px;
-	}
-	
-	#inputDiv {
-		width: 200px;
-		align-items: baseline;
-		display: flex;
-	}
-	
-	.form-control {
-		width: 120px;
-		float: left;
-	}
-	
-	button {
-		margin-top: 50px;
-		width: 400px;
-		height: 50px;
-	}
-	
-	input {
-		text-align: right;
-	}
-	
-	
-</style>
+<link rel="stylesheet" type="text/css" href="<c:url value='/css/deposit.css'/>">
 
 <script type="text/javascript">
 	$(function() {

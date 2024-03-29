@@ -5,34 +5,8 @@
 <title>MCN - 로그인</title>
 
 <link rel="stylesheet" type="text/css" href="<c:url value='/css/base.css'/>">
+<link rel="stylesheet" type="text/css" href="<c:url value='/css/main.css'/>">
 
-<style type="text/css">
-	form {
-		width: 1000px;
-		text-align: center;
-		padding: 30px 0px 30px 0px;
-		
-	}
-	
-	/* div 확인용*/
-	/* div {
-		border: 1px solid #000;
-	} */
-	
-	.form-control {
-		width: 300px;
-	}
-	
-	
-	#pwd {
-		margin-bottom: 5px;
-	}
-	
-	.buttonDiv {
-		float: right;
-		margin-top: 10px;
-	}
-</style>
 
 <script type="text/javascript">
 	$(function() {
@@ -68,6 +42,7 @@
 			</div>
 		</form>
 	</div>
+	
 	<%@ include file="form/bottom2.jsp" %>
 		
 </body>

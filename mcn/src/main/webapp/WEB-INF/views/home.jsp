@@ -6,10 +6,8 @@
 <title>MCN - 홈</title>
 
 <link rel="stylesheet" type="text/css" href="<c:url value='/css/base.css'/>">
+<link rel="stylesheet" type="text/css" href="<c:url value='/css/home.css'/>">
 
-<style type="text/css">
-	
-</style>
 
 <script type="text/javascript">
 

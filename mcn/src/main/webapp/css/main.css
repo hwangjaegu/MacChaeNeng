@@ -1,0 +1,27 @@
+@charset "UTF-8";
+
+	form {
+		width: 1000px;
+		text-align: center;
+		padding: 30px 0px 30px 0px;
+		
+	}
+	
+	/* div 확인용*/
+	/* div {
+		border: 1px solid #000;
+	} */
+	
+	.form-control {
+		width: 300px;
+	}
+	
+	
+	#pwd {
+		margin-bottom: 5px;
+	}
+	
+	.buttonDiv {
+		float: right;
+		margin-top: 10px;
+	}

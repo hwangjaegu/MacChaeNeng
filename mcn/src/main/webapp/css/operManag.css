@@ -1,0 +1,111 @@
+@charset "UTF-8";
+.text-left {
+		text-align: left;
+	}
+	
+	#name {
+		width: 200px;
+	}
+	
+	#listDiv {
+		margin: 20px 0 0 10px;
+		height: 250px;
+		overflow: auto; 
+		border: 1px solid;
+	}
+	
+	table {
+		width: 100%; /* 테이블의 너비를 100%로 설정하여 부모 요소에 맞춤 */
+		height: 20px;
+	}
+   
+	thead {
+    	position: sticky; /* 헤더를 고정 */
+        top: 0; /* 헤더를 창의 상단에 고정 */
+        z-index: 1; /* 다른 요소 위에 표시 */
+    }
+    
+	#selectedDiv {
+		height: 250px;
+		overflow: auto;
+		margin: 0 0 20px 10px;
+		border: 1px solid;
+	}
+	
+	
+	#selectedSpan {
+		margin: 30px 0px 10px 0px;
+	}
+	
+	.selected {
+		--bs-table-bg: #7fd3ac;
+	}
+	
+	.saveBtn {
+		width: 400px;
+		height: 50px;
+		margin-bottom: 20px;
+	}
+	
+	
+	#depositDiv {
+		margin-bottom: 20px;
+	}
+	
+	#depositList label {
+		width: 120px;
+		margin: 0px 5px 0px 5px;
+	}
+	
+	.men {
+		--bs-table-bg: #d3daeb;
+	}
+	
+	.women {
+		--bs-table-bg: #efd4d6;
+	}
+	
+	.form-control {
+		width: 120px;
+		float: left;
+		text-align: left;
+	}
+	
+	#totalDepositDiv {
+		align-items: baseline;
+		display: flex;
+	}
+	
+	#totalDepositLabelDiv {
+		text-align: right;
+	}
+	
+	.text-green {
+		--bs-table-color-state: #57d087;
+	}
+	
+	.text-red {
+		--bs-table-color-state: #eb0d0d;
+	}
+	
+	textarea.form-control {
+		width: 830px;
+		height: 100px;
+		float: left;
+	}
+	
+	#totalDeposit {
+		text-align: right;		
+	}
+	
+	#memoSaveBtn {
+		width: 100px;
+		height: 100px;
+		margin-left: 10px; 
+	}
+	
+	#memoDiv {
+		margin-bottom: 20px;		
+	}
+	
+	

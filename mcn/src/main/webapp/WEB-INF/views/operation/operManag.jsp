@@ -6,105 +6,7 @@
 <title>MCN - 모임운영</title>
 
 <link rel="stylesheet" type="text/css" href="<c:url value='/css/base.css'/>">
-
-<style>
-	.text-left {
-		text-align: left;
-	}
-	
-	#name {
-		width: 200px;
-	}
-	
-	#listDiv {
-		margin: 20px 0 0 10px;
-		height: 250px;
-		overflow: auto; 
-		border: 1px solid;
-	}
-	
-	table {
-		width: 100%; /* 테이블의 너비를 100%로 설정하여 부모 요소에 맞춤 */
-		height: 20px;
-	}
-   
-	thead {
-    	position: sticky; /* 헤더를 고정 */
-        top: 0; /* 헤더를 창의 상단에 고정 */
-        z-index: 1; /* 다른 요소 위에 표시 */
-    }
-    
-	#selectedDiv {
-		height: 250px;
-		overflow: auto;
-		margin: 0 0 20px 10px;
-		border: 1px solid;
-	}
-	
-	
-	#selectedSpan {
-		margin: 30px 0px 10px 0px;
-	}
-	
-	.selected {
-		--bs-table-bg: #7fd3ac;
-	}
-	
-	.saveBtn {
-		width: 400px;
-		height: 50px;
-		margin-bottom: 20px;
-	}
-	
-	.10 {
-		margin-top: 10px;
-	}
-	
-	#depositDiv {
-		margin-bottom: 20px;
-	}
-	
-	#depositList label {
-		width: 120px;
-		margin: 0px 5px 0px 5px;
-	}
-	
-	.men {
-		--bs-table-bg: #d3daeb;
-	}
-	
-	.women {
-		--bs-table-bg: #efd4d6;
-	}
-	
-	.form-control {
-		width: 120px;
-		float: left;
-		text-align: right;
-	}
-	
-	#totalDepositDiv {
-		align-items: baseline;
-		display: flex;
-	}
-	
-	#totalDepositLabelDiv {
-		text-align: right;
-	}
-	
-	.text-green {
-		--bs-table-color-state: #57d087;
-	}
-	
-	.text-red {
-		--bs-table-color-state: #eb0d0d;
-	}
-	
-	textarea {
-		width: 200px;
-	}
-
-</style>
+<link rel="stylesheet" type="text/css" href="<c:url value='/css/operManag.css'/>">
 
 <script type="text/javascript">
 	$(function() {
@@ -132,6 +34,9 @@
 		
 		getTotalDeposit();
 		
+		//메모내용 로딩
+		getMemo();
+		
 		//스페이스바 입력 방지
 		$('input').on('keydown', function(e) {
 			if(e.key === ' ' && $(this).attr('id') !== 'comments'){
@@ -156,7 +61,7 @@
 		});
 		
 		//선택한 인원 정보 밑으로 내리기
-		$('#personList').on('click', 'tr', function() {
+		$('#personList').on('click', 'tr:not([name=emptyTr])', function() {
 			let userNum = $(this).find('input[name=userNum]').val();
 			let weight = $(this).find('input[name=weight]').val();
 			let name = $(this).find('td[name=userName]').html();
@@ -540,10 +445,17 @@
 			}
 		});
 		
+		//메모 저장 버튼 클릭 시
+		$('#memoSaveBtn').click(function() {
+			let memoText = $('textarea').val();
+			
+			localStorage.setItem('memoText', JSON.stringify(memoText));
+		});
+		
 		//gameTab에 게임 참여 인원 현황 만들기
 		function getGameMemList() {
 			let gameSetMemList = JSON.parse(localStorage.getItem('selectedMemRows'));
-			let depositCheckRows = JSON.parse(localStorage.getItem('depositCheckRows'));
+			let depositCheckRows = JSON.parse(localStorage.getItem('depositCheckRows')) || [];
 			
 			depositCheckRows.forEach(function(deMem) {
 				if (deMem.isDeposit === 'f' && gameSetMemList.some(mem => mem.userNum === deMem.userNum)) {
@@ -693,8 +605,8 @@
 							num++;
 						});
 					}else{
-						str = "<tr>"
-							+ "<td colspan = '7'>등록된 회원이 없습니다. 회원을 등록해주세요.<td>"
+						str = "<tr name='emptyTr'>"
+							+ "<td colspan = '7'>검색된 회원이 없습니다.<td>"
 							+ "</tr>";
 					}
 					
@@ -767,6 +679,13 @@
 			
 			return dubChk;
 		}
+		
+		//저장된 메모내용 로딩
+		function getMemo() {
+			let memoText = JSON.parse(localStorage.getItem('memoText')) || '';
+			
+			$('textarea').val(memoText);
+		}
 	});
 	
 	//날짜 변경 함수 yyyy-MM-dd
@@ -825,8 +744,8 @@
 							<div class="row text-left">
 								<p>운동에 참여할 인원을 클릭하세요.</p>
 							</div>
-							<div class="row 10">
-								<div class="col-auto 10">
+							<div class="row mt10">
+								<div class="col-auto mt10">
 									<label for="searchName" class="visually-hidden">searchName</label> <input
 										type="text" class="form-control" id="searchName" name="searchName"
 										placeholder="이름으로 검색">
@@ -868,9 +787,9 @@
 									</thead>
 				
 									<tbody id="selectedList">
-										<tr id="baseTr">
+										<!-- <tr id="baseTr">
 											<td colspan="5">선택된 인원이 없습니다.</td>
-										</tr>
+										</tr> -->
 									</tbody>
 								</table>
 							</div>
@@ -926,11 +845,9 @@
 								<p>"⊕게임 생성" 버튼을 누른 후 게임을 구성할 인원을 4명 선택하세요.
 									게임이 진행될 경우 진행여부를 클릭하세요.</p>
 							</div>
-							<div class="row form-floating">
-								<textarea class="form-control"
-									placeholder="Leave a comment here" id="floatingTextarea2"
-									style="height: 100px"></textarea>
-								<label for="floatingTextarea2">Comments</label>
+							<div class="row" id="memoDiv">
+								<textarea class="form-control" placeholder="기타 메모란 ex)홍길동 귀가"></textarea>
+								<button class="btn btn-secondary" id="memoSaveBtn">메모 저장</button>
 							</div>
 							<div class="row">
 								<div class="col-5" id="gameDiv">
