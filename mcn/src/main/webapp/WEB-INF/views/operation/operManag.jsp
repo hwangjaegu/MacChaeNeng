@@ -65,7 +65,7 @@
 	}
 	
 	#depositList label {
-		width: 150px;
+		width: 120px;
 		margin: 0px 5px 0px 5px;
 	}
 	
@@ -77,6 +77,33 @@
 		--bs-table-bg: #efd4d6;
 	}
 	
+	.form-control {
+		width: 120px;
+		float: left;
+		text-align: right;
+	}
+	
+	#totalDepositDiv {
+		align-items: baseline;
+		display: flex;
+	}
+	
+	#totalDepositLabelDiv {
+		text-align: right;
+	}
+	
+	.text-green {
+		--bs-table-color-state: #57d087;
+	}
+	
+	.text-red {
+		--bs-table-color-state: #eb0d0d;
+	}
+	
+	textarea {
+		width: 200px;
+	}
+
 </style>
 
 <script type="text/javascript">
@@ -102,6 +129,8 @@
 		savedDepositCheckRows(selectedMemRows);
 		
 		getGameMemList();
+		
+		getTotalDeposit();
 		
 		//스페이스바 입력 방지
 		$('input').on('keydown', function(e) {
@@ -215,12 +244,20 @@
 							tr += "<td>" + num + "</td>";
 							tr += "<td name='userName'>" + mem.name + "</td>";
 							tr += "<td name='depositChk'>"
-							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='ok" + num + "' autocomplete='off' value='o'>";
-							tr += "<label class='btn btn-outline-success' for='ok" + num + "'>입금완료</label>";
-							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='non" + num + "' autocomplete='off' value='n' checked>";
-							tr += "<label class='btn btn-outline-warning' for='non" + num + "'>미입금</label>";
-							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='fine" + num + "' autocomplete='off' value='f'>";
-							tr += "<label class='btn btn-outline-danger' for='fine" + num + "'>벌금</label>";
+							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='o" + num + "' autocomplete='off' value='o'>";
+							tr += "<label class='btn btn-outline-success' for='o" + num + "'>입금완료</label>";
+							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='c" + num + "' autocomplete='off' value='c'>";
+							tr += "<label class='btn btn-outline-primary' for='c" + num + "'>쿠폰</label>";
+							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='g" + num + "' autocomplete='off' value='g'>";
+							tr += "<label class='btn btn-outline-success' for='g" + num + "'>게스트</label>";
+							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='p" + num + "' autocomplete='off' value='a'>";
+							tr += "<label class='btn btn-outline-secondary' for='p" + num + "'>운영진</label>";
+							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='a" + num + "' autocomplete='off' value='p'>";
+							tr += "<label class='btn btn-outline-secondary' for='a" + num + "'>담당</label>";
+							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='n" + num + "' autocomplete='off' value='n' checked>";
+							tr += "<label class='btn btn-outline-warning' for='n" + num + "'>미입금</label>";
+							tr += "<input type='radio' class='btn-check' name='depositChk" + num + "' id='f" + num + "' autocomplete='off' value='f'>";
+							tr += "<label class='btn btn-outline-danger' for='f" + num + "'>벌금</label>";
 							tr += "</td>";
 							tr += "</tr>";
 							
@@ -235,6 +272,7 @@
 					localStorage.setItem('depositCheckRows', JSON.stringify(depositCheckRows));
 					
 					getGameMemList();
+					getTotalDeposit();
 				}
 			}
 			
@@ -337,6 +375,7 @@
 					let options = [
 				    	{ value: 'o', label: '입금완료', class: 'btn-outline-success' },
 				    	{ value: 'c', label: '쿠폰', class: 'btn-outline-primary' },
+				    	{ value: 'g', label: '게스트', class: 'btn-outline-success' },
 				    	{ value: 'a', label: '운영진', class: 'btn-outline-secondary' },
 				    	{ value: 'p', label: '담당', class: 'btn-outline-secondary' },
 				    	{ value: 'n', label: '미입금', class: 'btn-outline-warning' },
@@ -358,10 +397,17 @@
 			}
 			
 			$('#depositList').html(tr);
+			
 		}
 		
-		$('#depositList input[type=radio]').click(function() {
+		$('#depositList input').change(function() {
 			changeDeposit();
+			getTotalDeposit();
+		});
+		
+		$('#depositList').on('change', 'input', function() {
+			changeDeposit();
+			getTotalDeposit();
 		});
 		
 		//입금 여부 체크 후 저장버튼 클릭 시
@@ -370,7 +416,6 @@
 			
 			if(isSelectedBtnClick == 1){
 				if(confirm('입금내역을 저장하시겠습니까?')){
-					alert('입금 내역을 저장했습니다.');
 					
 					let depositCheckRows = [];
 					
@@ -390,6 +435,13 @@
 					$('#game-tab').addClass('active');
 					$('#game').addClass('show active');
 					depositBtnClick();
+					
+					
+					localStorage.setItem('totalDeposit', JSON.stringify(parseInt($('#totalDeposit').val().replace(/,/g,''))));
+					
+					alert('입금 내역을 저장했습니다.');
+					
+					getGameMemList();
 				}
 			}else{
 				alert('참여인원 탭에서 저장하기 버튼을 눌러야 합니다.');
@@ -397,18 +449,116 @@
 			
 		});
 		
+		//게임 구성을 위한 tr추가를 위한 tr 클릭
+		$('#setGame').click(function() {
+			
+			//빈 td 확인
+			let bool = true;
+			
+			let cnt = 0;
+			
+			$('#gameTable tr').each(function() {
+				$(this).find('td').each(function() {
+					if($(this).text().match(/^Team/)){
+						cnt++;
+					}						
+				});
+			});
+			
+			if(cnt < 1){
+				let gameNum = $(this).prev().find('td[name=gameNum]').text() || 0;
+				
+				gameNum=parseInt(gameNum)+1;
+				
+				let tr = "<tr>";
+				tr += "<td style='width: 10%' name='gameNum'>" + gameNum + "</td>";
+			    tr += "<td style='width: 18.75%' name='team'>Team</td>";
+			    tr += "<td style='width: 18.75%' name='team'>Team</td>";
+			    tr += "<td style='width: 18.75%' name='team'>Team</td>";
+			    tr += "<td style='width: 18.75%' name='team'>Team</td>";
+			    tr += "<td style='width: 15%' name='state'>대기</td>";
+				tr+="</tr>";
+				
+				$('#gameList').append(tr);
+			    $('#gameList').append($(this));
+			}else{
+				alert("완전하게 구성되지 못한 게임이 존재합니다.");				
+			}
+			
+			
+		});
+		
+		//참여 인원 tr 눌러서 게임 구성하기
+		$('#memDiv tbody').on('click','tr', function() {
+			let userNum = $(this).find('input[name=userNum]').val();
+			let name = $(this).find('td[name=name]').text();
+			let gender = $(this).find('input[name=gender]').val();
+			let type = $(this).find('td[name=type]').text();
+			let weight = $(this).find('input[name=weight]').val();
+			
+			let genClass = (gender === '남')? 'men':'women';
+			
+			$('#gameTable tbody tr td').each(function() {
+				if($(this).text().match(/^Team/)){
+					if(checkDubMem($(this), userNum)){
+						alert("이미 등록된 회원입니다.");
+						
+						return false;
+					}
+					let td = "";
+					td += "<input type=hidden name='userNum' value='" + userNum + "'>";
+					td += "<td class='" + genClass + "'>" + name + "</td>";
+					
+					$(this).html(td);
+					
+					return false;
+				}	
+			});
+			
+			countGameSet();
+		});
+		
+		//구성된 게임에서 인원 빼기
+		$('#gameTable tbody').on('click', 'td', function() {
+			if ($(this).parent().is('#setGame') || $(this).is('td[name=gameNum]') || $(this).is('td[name=state]')) {
+		        return;
+		    }
+			
+			let td="Team";
+			
+			$(this).html(td);
+		});
+		
+		//게임 진행 여부 확인
+		$('#gameTable tbody').on('click', 'td[name=state]', function() {
+			if($(this).text() == '대기'){
+				$(this).addClass('text-green').text("진행");
+			}else if($(this).text() == '진행'){
+				$(this).removeClass('text-green').addClass('text-red').text("완료");
+			}else{
+				$(this).removeClass('text-red').text("대기");
+			}
+		});
+		
 		//gameTab에 게임 참여 인원 현황 만들기
 		function getGameMemList() {
-			let selectedMemList = JSON.parse(localStorage.getItem('selectedMemRows'));
+			let gameSetMemList = JSON.parse(localStorage.getItem('selectedMemRows'));
+			let depositCheckRows = JSON.parse(localStorage.getItem('depositCheckRows'));
+			
+			depositCheckRows.forEach(function(deMem) {
+				if (deMem.isDeposit === 'f' && gameSetMemList.some(mem => mem.userNum === deMem.userNum)) {
+					gameSetMemList = gameSetMemList.filter(mem => mem.userNum !== deMem.userNum);
+				}
+			});
 			
 			let mTr = '';
 			let wTr = '';
 			
-			if(selectedMemList && selectedMemList.length > 0){
+			if(depositCheckRows && depositCheckRows.length > 0){
 				let mN = 1;
 				let wN = 1;
 				
-				selectedMemList.forEach(function(mem) {
+				gameSetMemList.forEach(function(mem) {
 					let cnt = 0;
 					
 					$('#gameTable input[name=userNum]').each(function() {
@@ -420,23 +570,25 @@
 					
 					if(mem.gender == '남'){
 						mTr += "<tr class=men>";
-						mTr += "<input type='hidden' name='userNum'>" + mem.userNum + "</td>";
-						mTr += "<input type='hidden' name='weight'>" + mem.weight + "</td>";
-						mTr += '<td>' + mN + '</td>';
-						mTr += '<td>' + mem.name + '</td>';
-						mTr += '<td>' + mem.type + '</td>';
-						mTr += '<td>' + cnt + '</td>';
+						mTr += "<input type='hidden' name='userNum' value='" + mem.userNum + "'>";
+						mTr += "<input type='hidden' name='weight' value='" + mem.weight + "'>";
+						mTr += "<input type='hidden' name='gender' value='" + mem.gender + "'>";
+						mTr += "<td>" + mN + "</td>";
+						mTr += "<td name='name'>" + mem.name + "</td>";
+						mTr += "<td name='type'>" + mem.type + "</td>";
+						mTr += "<td name='gameCnt'>" + cnt + "</td>";
 						mTr += '</tr>';
 						
 						mN++;
 					}else{
 						wTr += "<tr class=women>";
-						wTr += "<input type='hidden' name='userNum'>" + mem.userNum + "</td>";
-						wTr += "<input type='hidden' name='weight'>" + mem.weight + "</td>";
+						wTr += "<input type='hidden' name='userNum' value='" + mem.userNum + "'>";
+						wTr += "<input type='hidden' name='weight' value='" + mem.weight + "'>";
+						wTr += "<input type='hidden' name='gender' value='" + mem.gender + "'>";
 						wTr += '<td>' + wN + '</td>';
-						wTr += '<td>' + mem.name + '</td>';
-						wTr += '<td>' + mem.type + '</td>';
-						wTr += '<td>' + cnt + '</td>';
+						wTr += "<td name='name'>" + mem.name + "</td>";
+						wTr += "<td name='type'>" + mem.type + "</td>";
+						wTr += "<td name='gameCnt'>" + cnt + "</td>";
 						wTr += '</tr>';
 						
 						wN++;
@@ -477,6 +629,37 @@
 		function changeDeposit() {
 			let isDepositBtnClick = 0;
 			localStorage.setItem('isDepositBtnClick', JSON.stringify(isDepositBtnClick));
+		}
+		
+		// 회비 합계 구하는 함수
+		function getTotalDeposit() {
+		    let totalDeposit = 0;
+			
+		    let options = [
+		    	{ value: 'o', fee: $("input[name='일반회원']").val() },
+		    	{ value: 'c', fee: $("input[name='쿠폰']").val() },
+		    	{ value: 'g', fee: $("input[name='게스트']").val() },
+		    	{ value: 'a', fee: $("input[name='운영진']").val() },
+		    	{ value: 'p', fee: $("input[name='담당']").val() },
+		    	{ value: 'f', fee: $("input[name='벌금']").val() }
+		    ];
+		    
+		    $('#depositList input:checked').each(function() {
+				let selectedOption = options.find(option => option.value === $(this).val());
+		    	
+				if(selectedOption){
+					let fee = parseInt(selectedOption.fee);
+					totalDeposit += fee;
+				}
+			});
+		    
+		    let formattedTotalDeposit = numberWithCommas(totalDeposit);
+		    $('input[name=totalDeposit]').val(formattedTotalDeposit);
+		}
+		
+		//천단위 기호 삭제 함수
+		function numberWithCommas(x) {
+		    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 		}
 		
 		//회원 리스트 가져오는 ajax
@@ -533,6 +716,56 @@
 			});
 			
 			$('#memCnt').html(cnt);
+		}
+		
+		//인원당 들어간 게임 수 확인
+		function countGameSet() {
+			let gameSetMemList = JSON.parse(localStorage.getItem('selectedMemRows'));
+			let depositCheckRows = JSON.parse(localStorage.getItem('depositCheckRows'));
+			
+			depositCheckRows.forEach(function(deMem) {
+				if (deMem.isDeposit === 'f' && gameSetMemList.some(mem => mem.userNum === deMem.userNum)) {
+					gameSetMemList = gameSetMemList.filter(mem => mem.userNum !== deMem.userNum);
+				}
+			});
+			
+			gameSetMemList.forEach(function(mem) {
+				let cnt = 0;
+				
+				$('#gameTable input[name=userNum]').each(function() {
+					if($(this).val() == mem.userNum){
+						cnt++;
+					}
+				});
+				
+				$('#memDiv input[name=userNum]').each(function() {
+					if($(this).val() == mem.userNum){
+						$(this).parent().find('td[name=gameCnt]').text(cnt);
+						return false;
+					}
+				});
+			});
+		}
+		
+		//한 게임에 같은 사람이 두명 들어갔는지 확인
+		function checkDubMem(tdElement, userNum) {
+			let dubChk = false;
+			
+			let trElement = tdElement.parent();
+			
+			let cnt=0;
+			
+			trElement.find('input[name=userNum]').each(function() {
+				if($(this).val() == userNum){
+					cnt++;
+				}
+			});
+			
+			if(cnt > 0){
+				dubChk = true;
+			}
+			
+			return dubChk;
 		}
 	});
 	
@@ -655,6 +888,9 @@
 								<p>회비 입금 여부를 확인하고 해당하는 버튼을 눌러주세요.</p>
 							</div>
 							<div class="row" id="depositDiv">
+								<c:forEach items="${depositList }" var="item">
+									<input type="hidden" name="${item.depositCategory }" value="${item.fee }">
+								</c:forEach>
 								<table class="table table-hover">
 									<thead class="table-light">
 										<tr>
@@ -668,6 +904,14 @@
 									</tbody>
 								</table>
 							</div>
+							<div class="row justify-content-end">
+								<div class="col-2" id="totalDepositLabelDiv">
+									<label for="totalDeposit" class="col-form-label">회비 총액 : </label>
+								</div>
+								<div class="col-2" id="totalDepositDiv">
+									<input type="text" name="totalDeposit" id="totalDeposit" class="form-control" value="0" readonly>&nbsp;원
+								</div>
+							</div>
 							<div class="row">
 								<div class="col align-self-center" >
 									<button class="btn btn-success saveBtn" id="saveDepositBtn">저장하기</button>
@@ -679,27 +923,36 @@
 						<!-- 게임 설정 시 보여야 할 항목들 -->
 						<div class="tab-pane fade" id="game" role="tabpanel" aria-labelledby="game-tab">
 							<div class="row">
-								<p>게임을 구성할 인원을 4명 클릭한 후 등록하기 버튼을 눌러주세요.</p>
+								<p>"⊕게임 생성" 버튼을 누른 후 게임을 구성할 인원을 4명 선택하세요.
+									게임이 진행될 경우 진행여부를 클릭하세요.</p>
 							</div>
-							<div class="row" id="gameDiv">
-								<div class="col-5">
+							<div class="row form-floating">
+								<textarea class="form-control"
+									placeholder="Leave a comment here" id="floatingTextarea2"
+									style="height: 100px"></textarea>
+								<label for="floatingTextarea2">Comments</label>
+							</div>
+							<div class="row">
+								<div class="col-5" id="gameDiv">
 									게임현황
 									<table class="table" id="gameTable">
 										<thead class="table-light">
 											<tr>
 												<th scope="col" width="10%">순서</th>
 												<th scope="col" width="75%" colspan="4">인원</th>
-												<th scope="col" width="15%">진행여부</th>
+												<th scope="col" width="15%">진행<br>여부</th>
 											</tr>
 										</thead>
 										<tbody id="gameList">
-											
+											<tr id="setGame">
+												<td colspan="6" id="gameSetTr">⊕게임 생성</td>
+											</tr>
 										</tbody>
 									</table>
 								</div>
-								<div class="col-7">
+								<div class="col-7" id="gameMemDiv">
 									게임 참여 인원 현황
-									<div class="row">
+									<div class="row" id="memDiv">
 										<div class="col">
 											<table class="table" id="menTable">
 												<thead class="table-light">
