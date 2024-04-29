@@ -108,4 +108,19 @@
 		margin-bottom: 20px;		
 	}
 	
+	#plusBtn {
+		margin-top: 10px;		
+	}
+	
+	.modal {
+		--bs-modal-width: 95%;
+	}
+	
+	
+	#endOperation {
+		height: 60px;
+		width: 900px;
+		margin-top: 20px;
+	}
+	
 	

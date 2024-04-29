@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="<c:url value='/css/base.css'/>">
 <link rel="stylesheet" type="text/css" href="<c:url value='/css/operManag.css'/>">
 
+<script type="text/javascript" src="<c:url value='/js/gameJs.js'/>"></script>
 <script type="text/javascript">
 	$(function() {
 		//선택인원 중복 체크를 위한 배열 생성 - 로컬에 배열이 있으면 해당 배열 사용하고 없으면 새로 선언
@@ -375,7 +376,7 @@
 				
 				gameNum=parseInt(gameNum)+1;
 				
-				let tr = "<tr>";
+				let tr = "<tr name='gameTr'>";
 				tr += "<td style='width: 10%' name='gameNum'>" + gameNum + "</td>";
 			    tr += "<td style='width: 18.75%' name='team'>Team</td>";
 			    tr += "<td style='width: 18.75%' name='team'>Team</td>";
@@ -410,11 +411,18 @@
 						
 						return false;
 					}
+					
 					let td = "";
-					td += "<input type=hidden name='userNum' value='" + userNum + "'>";
-					td += "<td class='" + genClass + "'>" + name + "</td>";
+					td += "<td class='" + genClass + "'>";
+					td += "<input type=hidden name='userNum' value='"+userNum+"'>";
+					td += "<input type=hidden name='gender' value='"+gender+"'>";
+					td += "<input type=hidden name='type' value='"+type+"'>";
+					td += "<input type=hidden name='weight' value='"+weight+"'>";
+					td += name+"</td>";
 					
 					$(this).html(td);
+					
+					gameBalanceCheck($(this));
 					
 					return false;
 				}	
@@ -422,6 +430,31 @@
 			
 			countGameSet();
 		});
+		
+		//게임목록 저장을 위한 dom 변화 감지
+		// 변경을 감지할 노드 선택
+		const targetNode = document.getElementById("gameTable");
+
+		// 감지 옵션 (감지할 변경)
+		const config = { attributes: true, childList: true, subtree: true };
+
+		// 변경 감지 시 실행할 콜백 함수
+		const callback = (mutationList, observer) => {
+			for (const mutation of mutationList) {
+		    	if (mutation.type === "childList") {
+					alert();
+		    	}else{
+		    		alert('dd');
+		    	}
+		  	}
+		};
+
+		// 콜백 함수에 연결된 감지기 인스턴스 생성
+		const observer = new MutationObserver(callback);
+
+		// 설정한 변경의 감지 시작
+		observer.observe(targetNode, config);
+		
 		
 		//구성된 게임에서 인원 빼기
 		$('#gameTable tbody').on('click', 'td', function() {
@@ -450,6 +483,20 @@
 			let memoText = $('textarea').val();
 			
 			localStorage.setItem('memoText', JSON.stringify(memoText));
+		});
+		
+		//확대 버튼 클릭 시 모달 출력
+		$('#plusBtn').click(function() {
+			$('#gameTable tbody tr').each(function() {
+				
+			});
+		});
+		
+		//모임 종료 버튼 클릭 시
+		$('#endOperation').click(function() {
+			if(confirm('모임을 종료하시겠습니까?')){
+			
+			}
 		});
 		
 		//gameTab에 게임 참여 인원 현황 만들기
@@ -482,25 +529,25 @@
 					
 					if(mem.gender == '남'){
 						mTr += "<tr class=men>";
-						mTr += "<input type='hidden' name='userNum' value='" + mem.userNum + "'>";
-						mTr += "<input type='hidden' name='weight' value='" + mem.weight + "'>";
-						mTr += "<input type='hidden' name='gender' value='" + mem.gender + "'>";
-						mTr += "<td>" + mN + "</td>";
-						mTr += "<td name='name'>" + mem.name + "</td>";
-						mTr += "<td name='type'>" + mem.type + "</td>";
-						mTr += "<td name='gameCnt'>" + cnt + "</td>";
+						mTr += "<input type='hidden' name='userNum' value='"+mem.userNum+"'>";
+						mTr += "<input type='hidden' name='weight' value='"+mem.weight+"'>";
+						mTr += "<input type='hidden' name='gender' value='"+mem.gender+"'>";
+						mTr += "<td>"+mN+"</td>";
+						mTr += "<td name='name'>"+mem.name+"</td>";
+						mTr += "<td name='type'>"+mem.type+"</td>";
+						mTr += "<td name='gameCnt'>"+cnt+"</td>";
 						mTr += '</tr>';
 						
 						mN++;
 					}else{
 						wTr += "<tr class=women>";
-						wTr += "<input type='hidden' name='userNum' value='" + mem.userNum + "'>";
-						wTr += "<input type='hidden' name='weight' value='" + mem.weight + "'>";
-						wTr += "<input type='hidden' name='gender' value='" + mem.gender + "'>";
-						wTr += '<td>' + wN + '</td>';
-						wTr += "<td name='name'>" + mem.name + "</td>";
-						wTr += "<td name='type'>" + mem.type + "</td>";
-						wTr += "<td name='gameCnt'>" + cnt + "</td>";
+						wTr += "<input type='hidden' name='userNum' value='"+mem.userNum+"'>";
+						wTr += "<input type='hidden' name='weight' value='"+mem.weight+"'>";
+						wTr += "<input type='hidden' name='gender' value='"+mem.gender+"'>";
+						wTr += '<td>'+wN+'</td>';
+						wTr += "<td name='name'>"+mem.name+"</td>";
+						wTr += "<td name='type'>"+mem.type+"</td>";
+						wTr += "<td name='gameCnt'>"+cnt +"</td>";
 						wTr += '</tr>';
 						
 						wN++;
@@ -593,13 +640,13 @@
 							}else{
 								str += "<tr>";
 							}
-							str	+= "<input type='hidden' name='userNum' value='" + this.userNum + "'>";
-							str	+= "<input type='hidden' name='weight' value='" + this.weight + "'>";
-							str	+= "<td name='userName'>" + this.name + "</td>";
-							str	+= "<td name='gender'>" + this.gender + "</td>";
-							str	+= "<td name='type'>" + this.type + "</td>";
-							str	+= "<td name='transDate'>" + transDate(this.joinDate) + "</td>";
-							str	+= "<td name='comments'>" + this.comments + "</td>";
+							str	+= "<input type='hidden' name='userNum' value='"+this.userNum+"'>";
+							str	+= "<input type='hidden' name='weight' value='"+this.weight+"'>";
+							str	+= "<td name='userName'>"+this.name+"</td>";
+							str	+= "<td name='gender'>"+this.gender+"</td>";
+							str	+= "<td name='type'>"+this.type+"</td>";
+							str	+= "<td name='transDate'>"+transDate(this.joinDate)+"</td>";
+							str	+= "<td name='comments'>"+this.comments+"</td>";
 							str	+= "</tr>";
 							
 							num++;
@@ -686,6 +733,34 @@
 			
 			$('textarea').val(memoText);
 		}
+		
+		//게임 밸런스 체크
+		function gameBalanceCheck(tdElement) {
+			let trElement = tdElement.parent();
+			
+			let cnt = 0;
+			
+			trElement.find('td').each(function() {
+				if($(this).text() == 'Team') cnt++;
+			});
+			
+			if(cnt == 0){
+				let genderList = trElement.find('input[name=gender]'); 
+				let gradeList = trElement.find('input[name=type]'); 
+				let weightList = trElement.find('input[name=weight]');
+				
+				let grade1 = transPoint(genderList.eq(0).val(), gradeList.eq(0).val(), weightList.eq(0).val()); 
+				let grade2 = transPoint(genderList.eq(1).val(), gradeList.eq(1).val(), weightList.eq(1).val()); 
+				let grade3 = transPoint(genderList.eq(2).val(), gradeList.eq(2).val(), weightList.eq(2).val()); 
+				let grade4 = transPoint(genderList.eq(3).val(), gradeList.eq(3).val(), weightList.eq(3).val());
+				if(Math.abs((grade1 + grade2)-(grade3 + grade4))>1){
+					alert('게임 밸런스가 맞지 않습니다. 게임 수정을 권장합니다.');
+				}
+			}
+		}
+		
+		
+
 	});
 	
 	//날짜 변경 함수 yyyy-MM-dd
@@ -787,9 +862,7 @@
 									</thead>
 				
 									<tbody id="selectedList">
-										<!-- <tr id="baseTr">
-											<td colspan="5">선택된 인원이 없습니다.</td>
-										</tr> -->
+
 									</tbody>
 								</table>
 							</div>
@@ -846,7 +919,7 @@
 									게임이 진행될 경우 진행여부를 클릭하세요.</p>
 							</div>
 							<div class="row" id="memoDiv">
-								<textarea class="form-control" placeholder="기타 메모란 ex)홍길동 귀가"></textarea>
+								<textarea class="form-control" name="etcMemo" placeholder="기타 메모란 ex)홍길동 귀가"></textarea>
 								<button class="btn btn-secondary" id="memoSaveBtn">메모 저장</button>
 							</div>
 							<div class="row">
@@ -866,6 +939,7 @@
 											</tr>
 										</tbody>
 									</table>
+									<button class="btn btn-success" id="plusBtn" data-bs-toggle="modal" data-bs-target="#modal1">확대모드</button>
 								</div>
 								<div class="col-7" id="gameMemDiv">
 									게임 참여 인원 현황
@@ -903,6 +977,11 @@
 									</div>
 								</div>
 							</div>
+							<div class="row">
+								<div class="col align-self-center">
+									<button class="btn btn-success" id="endOperation">모임종료</button>
+								</div>
+							</div>
 						</div>
 						<!-- 게임 설정 시 보여야 할 항목들 끝-->
 					</div>
@@ -911,7 +990,37 @@
 				</div>
 			</div>
 		</section>
-	
+		
+		<!-- modal -->
+		<div class="modal fade" id="modal1" data-bs-backdrop="static"
+			data-bs-keyboard="false" tabindex="-1"
+			aria-labelledby="staticBackdropLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="staticBackdropLabel">게임 대기 순서 -- 자신의 게임 순서를 반드시 확인하세요.</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<table class="table" id="plusTable">
+							<thead class="table-light">
+								<tr>
+									<th scope="col" width="10%">순서</th>
+									<th scope="col" width="75%" colspan="4">인원</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-bs-dismiss="modal">닫기</button>
+					</div>
+				</div>
+			</div>
+		</div>
 		<%@ include file="../form/bottom2.jsp" %>
 	</div>
 </body>
